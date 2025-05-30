@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Biblioteca Virtual - Gestión de Libros</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --warning-gradient: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%);
+      --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.37);
+      --shadow-hover: 0 15px 35px rgba(31, 38, 135, 0.2);
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+    }
+
+    * {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    main.container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 3rem 2rem;
+      box-shadow: var(--shadow-light);
+      max-width: 1200px;
+      margin: 2rem auto;
+      animation: slideInUp 0.8s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    main.container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 3rem;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    h1 i {
+      color: #ffffff;
+      margin-right: 1rem;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+
+    .form-floating {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-control,
+    .form-select {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      color: white;
+      font-size: 1rem;
+      padding: 1rem 1.25rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-control::placeholder,
+    .form-select option[disabled] {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 400;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), inset 0 2px 4px rgba(0,0,0,0.1);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    .form-select option {
+      background: var(--text-primary);
+      color: white;
+    }
+
+    input:read-only {
+      background: rgba(255, 255, 255, 0.05) !important;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .btn {
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.75rem 2rem;
+      border-radius: 16px;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(0);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+    }
+
+    .btn-outline-secondary {
+      background: transparent;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-outline-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.6);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning-gradient);
+      color: var(--text-primary);
+    }
+
+    .btn-danger {
+      background: var(--danger-gradient);
+      color: var(--text-primary);
+    }
+
+    .table-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 2rem;
+      animation: slideInLeft 0.8s ease-out 0.3s both;
+    }
+
+    .table {
+      margin-bottom: 0;
+      border-collapse: separate;
+      border-spacing: 0 12px;
+      color: white;
+    }
+
+    .table thead th {
+      border: none;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      text-align: center;
+      padding: 1rem 0.75rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .table tbody tr {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    .table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .table td {
+      vertical-align: middle;
+      text-align: center;
+      padding: 1.25rem 0.75rem;
+      border: none;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 500;
+      word-break: break-word;
+      border-radius: 16px;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      border-radius: 12px;
+      font-weight: 600;
+      margin: 0 0.25rem;
+    }
+
+    .alert {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      color: white;
+      font-weight: 600;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+      animation: slideInUp 0.5s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .alert::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--success-gradient);
+      border-radius: 16px 16px 0 0;
+    }
+
+    .alert-warning::before {
+      background: var(--warning-gradient);
+    }
+
+    .alert-danger::before {
+      background: var(--danger-gradient);
+    }
+
+    #alert-edicion {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .loading-row {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-disponible {
+      background: var(--success-gradient);
+      color: white;
+    }
+
+    .status-disponible::before {
+      content: '✅ ';
+    }
+
+    .status-prestado {
+      background: var(--warning-gradient);
+      color: var(--text-primary);
+    }
+
+    .status-prestado::before {
+      content: '📤 ';
+    }
+
+    @media (max-width: 768px) {
+      main.container {
+        margin: 1rem;
+        padding: 2rem 1.5rem;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .table-container {
+        padding: 1rem;
+      }
+
+      .table {
+        font-size: 0.85rem;
+      }
+
+      .btn-group {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 200px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .table-responsive {
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      
+      .table td,
+      .table th {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container py-5">
+    <h1><i class="fas fa-book-open"></i>Biblioteca Virtual</h1>
+
+    <!-- Aviso edición -->
+    <div id="alert-edicion" class="alert alert-warning text-center d-none" role="alert">
+      ✏️ Estás editando un libro.
+      <button type="button" class="btn btn-sm btn-outline-light ms-3" id="btn-cancelar-edicion">
+        ❌ Cancelar edición
+      </button>
+    </div>
+
+    <form id="form-libro" class="mb-4" novalidate>
+      <div class="form-row">
+        <div class="input-group">
+          <span class="input-emoji">📚</span>
+          <input type="text" id="titulo" class="form-control" placeholder="Título del libro" required />
+        </div>
+        <div class="input-group">
+          <span class="input-emoji">✍️</span>
+          <input type="text" id="autor" class="form-control" placeholder="Autor" required />
+        </div>
+        <div class="input-group">
+          <span class="input-emoji">🔢</span>
+          <input type="text" id="isbn" class="form-control" placeholder="ISBN (13 dígitos)" pattern="\d{13}" title="13 dígitos numéricos" required />
+        </div>
+        <div class="input-group">
+          <span class="input-emoji">🏷️</span>
+          <select id="categoria" class="form-select" required>
+            <option value="" disabled selected>Seleccionar categoría</option>
+            <option value="novela">📖 Novela</option>
+            <option value="cuento">📝 Cuento</option>
+            <option value="poesía">🎭 Poesía</option>
+            <option value="ensayo">📄 Ensayo</option>
+            <option value="teatro">🎪 Teatro</option>
+            <option value="biografía">👤 Biografía</option>
+            <option value="historia">🏛️ Historia</option>
+            <option value="infantil">🧸 Infantil</option>
+            <option value="fantasía">🧙‍♂️ Fantasía</option>
+            <option value="ciencia ficción">🚀 Ciencia Ficción</option>
+            <option value="misterio">🔍 Misterio</option>
+            <option value="romance">💕 Romance</option>
+            <option value="aventura">⚔️ Aventura</option>
+            <option value="autoayuda">💪 Autoayuda</option>
+            <option value="otro">📋 Otro</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <span class="input-emoji">📊</span>
+          <select id="estado" class="form-select" required>
+            <option value="" disabled selected>Estado del libro</option>
+            <option value="disponible">✅ Disponible</option>
+            <option value="prestado">📤 Prestado</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <span class="input-emoji">📅</span>
+          <input type="date" id="fecha_ingreso" class="form-control" readonly />
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button type="submit" class="btn btn-primary">
+          ➕ Agregar Libro
+        </button>
+        <button type="button" id="btn-cancelar" class="btn btn-outline-secondary d-none">
+          ❌ Cancelar
+        </button>
+      </div>
+    </form>
+
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table table-borderless align-middle" id="tabla-libros">
+          <thead>
+            <tr>
+              <th>🆔 ID</th>
+              <th>📚 Título</th>
+              <th>✍️ Autor</th>
+              <th>🔢 ISBN</th>
+              <th>🏷️ Categoría</th>
+              <th>📊 Estado</th>
+              <th>📅 Fecha</th>
+              <th>⚙️ Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="mensaje" class="mt-3"></div>
+  </main>
+
+  <script>
+    const baseUrl = 'http://localhost:5000/libros';
+
+    const tabla = document.querySelector('#tabla-libros tbody');
+    const form = document.getElementById('form-libro');
+    const inputTitulo = document.getElementById('titulo');
+    const inputAutor = document.getElementById('autor');
+    const inputIsbn = document.getElementById('isbn');
+    const selectCategoria = document.getElementById('categoria');
+    const selectEstado = document.getElementById('estado');
+    const inputFechaIngreso = document.getElementById('fecha_ingreso');
+    const btnCancelar = document.getElementById('btn-cancelar');
+    const mensaje = document.getElementById('mensaje');
+    const alertEdicion = document.getElementById('alert-edicion');
+    const btnCancelarEdicion = document.getElementById('btn-cancelar-edicion');
+    let editId = null;
+
+    // Función para obtener fecha actual en formato YYYY-MM-DD
+    function getFechaSimple() {
+      const hoy = new Date();
+      const yyyy = hoy.getFullYear();
+      const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+      const dd = String(hoy.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Función para obtener fecha actual en formato ISO 8601 completo con Zulu (UTC)
+    function getFechaISO() {
+      return new Date().toISOString();
+    }
+
+    // Inicializar campo fecha ingreso en formato simple
+    function establecerFechaActual() {
+      inputFechaIngreso.value = getFechaSimple();
+    }
+
+    window.onload = establecerFechaActual;
+
+    function mostrarMensaje(texto, tipo = 'success') {
+      const iconos = {
+        success: '✅',
+        danger: '⚠️',
+        warning: '⚠️',
+        info: 'ℹ️'
+      };
+      
+      mensaje.innerHTML = `<div class="alert alert-${tipo}">${iconos[tipo]} ${texto}</div>`;
+      setTimeout(() => mensaje.innerHTML = '', 4000);
+    }
+
+    function mostrarModoEdicion() {
+      alertEdicion.classList.remove('d-none');
+      btnCancelar.classList.add('d-none');
+      document.querySelector('button[type="submit"]').innerHTML = '💾 Actualizar Libro';
+    }
+
+    function ocultarModoEdicion() {
+      alertEdicion.classList.add('d-none');
+      btnCancelar.classList.remove('d-none');
+      editId = null;
+      form.reset();
+      establecerFechaActual();
+      document.querySelector('button[type="submit"]').innerHTML = '➕ Agregar Libro';
+    }
+
+    btnCancelarEdicion.onclick = () => {
+      ocultarModoEdicion();
+    };
+
+    async function cargarLibros() {
+      tabla.innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Cargando libros...</td></tr>';
+      try {
+        const res = await fetch(baseUrl);
+        if (!res.ok) throw new Error('Error al obtener libros');
+        const libros = await res.json();
+        tabla.innerHTML = '';
+        
+        libros.forEach((libro, index) => {
+          const fecha = new Date(libro.fecha_creacion);
+          const fechaFormateada = fecha.toLocaleDateString('es-AR', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          });
+
+          // Escapar comillas simples para evitar romper el onclick
+          const tituloEsc = libro.titulo.replace(/'/g, "\\'");
+          const autorEsc = libro.autor.replace(/'/g, "\\'");
+          const categoriaEsc = libro.categoria.replace(/'/g, "\\'");
+
+          const tr = document.createElement('tr');
+          tr.style.animationDelay = `${index * 0.1}s`;
+          tr.innerHTML = `
+            <td><strong>#${libro.id}</strong></td>
+            <td><strong>📚 ${libro.titulo}</strong></td>
+            <td>✍️ ${libro.autor}</td>
+            <td><code>🔢 ${libro.isbn}</code></td>
+            <td><span class="text-capitalize">🏷️ ${libro.categoria}</span></td>
+            <td><span class="status-badge status-${libro.estado}">${libro.estado}</span></td>
+            <td><small>📅 ${fechaFormateada}</small></td>
+            <td>
+              <button class="btn btn-sm btn-warning" onclick="editarLibro(
+                ${libro.id},
+                '${tituloEsc}',
+                '${autorEsc}',
+                '${libro.isbn}',
+                '${categoriaEsc}',
+                '${libro.estado}'
+              )" title="Editar libro">
+                ✏️
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="eliminarLibro(${libro.id})" title="Eliminar libro">
+                🗑️
+              </button>
+            </td>
+          `;
+          tabla.appendChild(tr);
+        });
+      } catch (error) {
+        tabla.innerHTML = '<tr><td colspan="8">⚠️ Error al cargar los libros</td></tr>';
+        mostrarMensaje('No se pudieron cargar los libros', 'danger');
+      }
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const libro = {
+        titulo: inputTitulo.value.trim(),
+        autor: inputAutor.value.trim(),
+        isbn: inputIsbn.value.trim(),
+        categoria: selectCategoria.value,
+        estado: selectEstado.value,
+      };
+
+      try {
+        let res;
+        if (editId) {
+          // En PUT enviamos fecha_creacion en ISO 8601
+          libro.fecha_creacion = getFechaISO();
+
+          res = await fetch(`${baseUrl}/buscar/${editId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(libro)
+          });
+          mostrarMensaje('Libro actualizado exitosamente', 'success');
+          ocultarModoEdicion();
+        } else {
+          // En POST enviamos fecha_creacion en formato simple YYYY-MM-DD
+          libro.fecha_creacion = getFechaSimple();
+
+          res = await fetch(baseUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(libro)
+          });
+          mostrarMensaje('Libro agregado exitosamente', 'success');
+        }
+        if (!res.ok) throw new Error('Error en la petición');
+        form.reset();
+        editId = null;
+        btnCancelar.classList.add('d-none');
+        establecerFechaActual();
+        cargarLibros();
+      } catch (error) {
+        mostrarMensaje('Error al guardar el libro', 'danger');
+      }
+    };
+
+    window.editarLibro = (id, titulo, autor, isbn, categoria, estado) => {
+      editId = id;
+      inputTitulo.value = titulo;
+      inputAutor.value = autor;
+      inputIsbn.value = isbn;
+      selectCategoria.value = categoria;
+      selectEstado.value = estado;
+      mostrarModoEdicion();
+      establecerFechaActual();
+    };
+
+    btnCancelar.onclick = () => {
+      ocultarModoEdicion();
+    };
+
+    window.eliminarLibro = async (id) => {
+      if (!confirm('¿Estás seguro de que deseas eliminar este libro? Esta acción no se puede deshacer.')) return;
+      try {
+        const res = await fetch(`${baseUrl}/buscar/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Error al eliminar');
+        mostrarMensaje('Libro eliminado exitosamente', 'info');
+        cargarLibros();
+      } catch (error) {
+        mostrarMensaje('Error al eliminar el libro', 'danger');
+      }
+    };
+
+    // Carga inicial
+    cargarLibros();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
